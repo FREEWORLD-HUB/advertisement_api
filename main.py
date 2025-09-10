@@ -49,6 +49,7 @@ def get_adverts(title="", description="", limit=10, skip=0):
     return {"data": list(map(replace_mongo_id, Advert))}
 
 
+
 @app.post("/adverts")
 def post_advert(
     title: Annotated[str, Form()], 
@@ -69,6 +70,17 @@ def post_advert(
     })
     # adverts_collection.insert_one(event.model_dump())
     return {"message": "Advert added successfully"}
+
+
+@app.get("/adverts/{advert_id}")
+def get_advert_by_id(advert_id):
+    # check if advert id is valid
+    if not ObjectId.is_valid(advert_id):
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid mongo id received") 
+    # Get advert from database by id
+    advert = adverts_collection.find_one({"_id": ObjectId(advert_id)})
+    # Return response
+    return {"data": replace_mongo_id(advert)}
 
 
 @app.put("/adverts/{advert_id}")
