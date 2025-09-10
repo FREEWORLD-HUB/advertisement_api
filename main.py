@@ -8,7 +8,10 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
-app = FastAPI()
+app = FastAPI(title="Advert Management API", version="1.0.0")
+
+
+
 
 # create a class to model the data
 class Advert(BaseModel):
