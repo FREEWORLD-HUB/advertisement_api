@@ -104,5 +104,3 @@ def delete_advert(advert_id):
     if not delete_results.deleted_count:
        raise HTTPException(status.HTTP_404_NOT_FOUND,"Oops no advert found to delete")
     return {"message":"Advert deleted successfully"}
-
-
