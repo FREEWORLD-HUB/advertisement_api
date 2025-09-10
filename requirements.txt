@@ -3,4 +3,3 @@ pymongo
 python-dotenv
 python-multipart
 cloudinary
-UVicorn[standard]
