@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Form,File, UploadFile, HTTPException,status
+from fastapi import FastAPI, Form, File, UploadFile, HTTPException,status
 from db import adverts_collection
 from pydantic import BaseModel
 from bson.objectid import ObjectId
@@ -33,20 +33,12 @@ def get_home():
     return {"message": "you are on the home page"}
 
 @app.get("/adverts")
-def get_adverts(title="", description="", limit=10, skip=0):
+def get_adverts():
     # get all adverts from the database
-    adverts = adverts_collection.find(
-        filter={
-            "$or": [
-                {"title": {"$regex": title, "$options": "i"}},
-                {"description": {"$regex": description, "$options": "i"}},
-            ]
-        },
-        limit=int(limit),
-        skip=int(skip)
-    ).to_list()
+    adverts = adverts_collection.find()
+    adverts = list(adverts)
     # returns response
-    return {"data": list(map(replace_mongo_id, Advert))}
+    return {"data": list(map(replace_mongo_id, adverts))}
 
 
 
@@ -94,14 +86,14 @@ def replace_advert(
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY,
                             "Invalid Mongo Id recieved")
     #upload flyer to cloudinary
-    upload_result = cloudinary.uploader.upload(flyer,File)
+    upload_result = cloudinary.uploader.upload(flyer.file)
     #replace advert in database
     adverts_collection.replace_one(
         filter={"_id":ObjectId (advert_id)},
         replacement={
         "title" : title,
         "description" : description,
-        "flyer_url" : upload_result.get["secure_url"],
+        "flyer_url" : upload_result["secure_url"],
      }
     )
     #return response
@@ -119,3 +111,5 @@ def delete_advert(advert_id):
     if not delete_results.deleted_count:
        raise HTTPException(status.HTTP_404_NOT_FOUND,"Oops no advert found to delete")
     return {"message":"Advert deleted successfully"}
+
+
